@@ -1,0 +1,355 @@
+'''
+Created on 6 Aug. 2018
+
+@author: Morgan
+'''
+
+def ntb(i, b):
+    result = ""
+    while i > 0:
+            result = str(i%b) + result
+            i = i // b
+    return result
+    
+
+from random import randint
+
+typ=1 #0=pd, 1=rps, 2=marbles
+
+lb=3
+
+#rps = ["Rock","Paper","Scissors"]
+if typ==0: 
+    rps = ["Cooperate","Defect"]
+elif typ==1:
+    rps = ["Rock","Paper","Scissors"]
+elif typ==2:
+    rps = ["1","2","3","4"]
+ais = []
+lu = []
+pop=100
+mr=50
+
+def fill():
+    for n in range(0,pow(len(rps)+1,lb)):
+        lu.append("0"*(lb-len(str(ntb(n,len(rps)+1))))+str(ntb(n,len(rps)+1)))
+        #print("0"*(len(rps)-len(str(ntb(n,len(rps)+1))))+str(ntb(n,len(rps)+1)))
+def wlt(a,b):
+    if a==b:
+        return 2
+    elif len(rps)<=2:
+        if a-1==b:
+            return 0
+        else:
+            return 1  
+    else:
+        if a-1==b:
+            return 0
+        elif b-1==a:
+            return 1
+        elif a+len(rps)-1==b:
+            return 0
+        elif b+len(rps)-1==a:
+            return 1
+def match(sa,sb,rounds):
+    if typ==2:
+        mc=15
+        t=0
+    ma=0
+    mb=0
+    aw=0
+    bw=0
+    lma="0"*lb
+    lmb="0"*lb
+    if typ==2:
+        while mc>0:
+            if t==0:
+                ma=int(sa[lu.index(lma)])
+                lmb=lmb[1:]+str(ma)
+                mc-=ma
+                t=1
+            else:
+                mb=int(sb[lu.index(lmb)])
+                lma=lma[1:]+str(mb)
+                mc-=mb
+                t=0
+        if t==0:
+            bw+=20
+        else:
+            aw+=20
+    else:
+        for i in range(rounds): 
+            ma=int(sa[lu.index(lma)])
+            mb=int(sb[lu.index(lmb)])
+            
+            lma=lma[1:]+str(mb)
+            lmb=lmb[1:]+str(ma)
+            
+            if typ==0: 
+                if wlt(ma,mb)==0:
+                    aw+=8
+                elif wlt(ma,mb)==1:
+                    bw+=8
+                else:
+                    if ma==0:
+                        aw+=5
+                        bw+=5
+                    else:
+                        aw-=3
+                        bw-=3
+            elif typ==1:
+                if wlt(ma,mb)==0:
+                    aw+=2
+                elif wlt(ma,mb)==1:
+                    bw+=2
+                else:
+                    aw+=1
+                    bw+=1
+        
+    return aw
+    #print(aw);
+    #print(bw);
+
+def vm(sa,sb,rounds):
+    if typ==2:
+        mc=15
+        t=0
+    ma=0
+    mb=0
+    aw=0
+    bw=0
+    lma="0"*lb
+    lmb="0"*lb
+    if typ==2:
+            while mc>0:
+                print("Marbles: "+str(mc))
+                print("")
+                
+                if t==0:
+                    ma=int(sa[lu.index(lma)])
+                    lmb=lmb[1:]+str(ma)
+                    mc-=ma
+                    t=1
+                    print("A: " + str(ma))
+                else:
+                    mb=int(sb[lu.index(lmb)])
+                    lma=lma[1:]+str(mb)
+                    mc-=mb
+                    t=0
+                    print("B: " + str(mb))
+            if t==0:
+                print("A wins!")
+            else:
+                print("B wins!")
+    else:
+        for i in range(rounds): 
+            
+            print("Round: "+str(i+1))
+            print("")
+            print("A Score: "+str(aw))
+            print("B Score: "+str(bw))
+            print("")
+            
+            ma=int(sa[lu.index(lma)])
+            mb=int(sb[lu.index(lmb)])
+            lma=lma[1:]+str(ma)
+            lmb=lmb[1:]+str(mb)
+        
+            if typ==0:     
+                print("A: "+rps[ma-1])
+                print("B: "+rps[mb-1])
+                if wlt(ma,mb)==0:
+                    aw+=8
+                    print("A wins");
+                elif wlt(ma,mb)==1:
+                    bw+=8
+                    print("B wins");
+                else:
+                    if ma==0:
+                        aw+=5
+                        bw+=5
+                    else:
+                        aw-=3
+                        bw-=3
+                    print("It's a tie");
+                print();
+            elif typ==1:
+                print("A: "+rps[ma-1])
+                print("B: "+rps[mb-1])
+                if wlt(ma,mb)==0:
+                    aw+=2
+                    print("A wins");
+                elif wlt(ma,mb)==1:
+                    bw+=2
+                    print("B wins");
+                else:
+                    aw+=1
+                    bw+=1
+                    print("It's a tie");
+                print();
+        print("A win count: "+str(aw));
+        print("B win count: "+str(bw));
+
+def cp(n):
+    for i in range(0,n):
+        s=""
+        for a in range(0,len(lu)):
+            s=s+str(randint(1,len(rps)))
+        ais.append(AI(s,i))
+
+def sort(array):
+    less = []
+    equal = []
+    greater = []
+
+    if len(array) > 1:
+        pivot = array[len(array) //2].fitness
+        for x in array:
+            if x.fitness < pivot:
+                less.append(x)
+            if x.fitness == pivot:
+                equal.append(x)
+            if x.fitness > pivot:
+                greater.append(x)
+        return sort(less)+equal+sort(greater)
+
+    else:
+        return array
+
+def child(pa,pb,n):
+    ais[n].strat=pa[:len(pa) // 2]+pb[len(pa)//2-1:]
+    ais[n+1].strat=pb[:len(pa) // 2]+pa[len(pa)//2-1:]
+    if randint(0,mr/2)==0:
+        t=list(ais[n].strat)
+        t[randint(0,len(ais[n].strat)-1)]=str(randint(1,len(rps)))
+        ais[n].strat="".join(t)
+
+def ng():
+    for x in range(pop):
+        ais[x].fitness=0
+    for x in range(pop):
+        for y in range(pop):
+            #print(ais[x].strat)
+            if not ais[x].num == ais[y].num:   
+                ais[x].fitness+=(match(ais[x].strat, ais[y].strat,20))
+        ais[x].fitness=ais[x].fitness/(pop-1)*2.5
+    
+    sort(ais)
+    for x in range(0,round(pop/2),2):
+        child(ais[x].strat,ais[x+1].strat,x+round(pop/2))
+
+def loop():
+    try:
+        return(rps.index(input("What do you play? "))+1)
+    except:
+        print("You spelled it incorrectly, please type it again.")
+        loop();
+def hm(ais,rounds):
+    if typ==2:
+        mc=15
+        t=0
+    ma=0
+    mb=0
+    aw=0
+    bw=0
+    lma="0"*lb
+    lmb="0"*lb
+    if typ==2:
+            while mc>0:
+                print("Marbles: "+str(mc))
+                if t==0:
+                    ma=int(ais[lu.index(lma)])
+                    lmb=lmb[1:]+str(ma)
+                    mc-=ma
+                    t=1
+                    print("AI: " + str(ma))
+                else:
+                    mb=rps.index(input("What do you play? "))+1
+                    lma=lma[1:]+str(mb)
+                    mc-=mb
+                    t=0
+            if t==0:
+                print("AI Wins")
+            else:
+                print("Human Wins")
+            print("")
+    else:
+        for i in range(rounds): 
+        
+            print("Round: "+str(i+1))
+            print("")
+            print("Human Score: "+str(bw))
+            print("AI Score: "+str(aw))
+            print("")
+            
+            ma=int(ais[lu.index(lma)])
+            try:
+                mb=rps.index(input("What do you play? "))+1
+            except:
+                print("You spelled it incorrectly, please type it again.")
+                mb=loop();
+                
+            lma=lma[1:]+str(ma)
+            lmb=lmb[1:]+str(mb)
+        
+            if typ==0:     
+                print("AI: "+rps[ma-1])
+                print("Human: "+rps[mb-1])
+                if wlt(ma,mb)==0:
+                    aw+=8
+                    print("AI wins");
+                elif wlt(ma,mb)==1:
+                    bw+=8
+                    print("Human wins");
+                else:
+                    if ma==0:
+                        aw+=5
+                        bw+=5
+                    else:
+                        aw-=3
+                        bw-=3
+                    print("It's a tie");
+                print();
+            elif typ==1:
+                print("AI: "+rps[ma-1])
+                print("Human: "+rps[mb-1])
+                if wlt(ma,mb)==0:
+                    aw+=2
+                    print("AI wins");
+                elif wlt(ma,mb)==1:
+                    bw+=2
+                    print("Human wins");
+                else:
+                    aw+=1
+                    bw+=1
+                    print("It's a tie");
+                print();
+    print("AI win count: "+str(aw));
+    print("Human win count: "+str(bw));
+
+class AI:
+    strat=""
+    num=0
+    fitness=0
+    def __init__(self,s,n):
+        self.strat=s
+        self.num=n
+        
+fill()
+cp(pop)
+
+print(lu[0])
+
+for x in range(800):
+    print(x)
+    ng()
+
+print(ais[len(ais)-1].strat)
+print(ais[len(ais)-2].strat)    
+vm(ais[len(ais)-1].strat,ais[len(ais)-2].strat,20)
+for x in range(20):
+    hm(ais[len(ais)-1].strat,10)
+    print("")
+    print("")
+
+
